@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Money Maker Guru</title>
+  <style>
+    :root{--card:rgba(255,255,255,0.04);--accent:#00eaff;--muted:#c0d}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+   body {
+  font-family: 'Poppins', Arial, sans-serif, Helvetica, sans-serif;background:linear-gradient(135deg,#ff0033,#0066ff) fixed; color:#fff;-webkit-font-smoothing:antialiased}
+   .container{max-width:1100px;margin:0 auto;padding:20px;background:transparent}
+    header{padding:14px 0;text-align:center;font-weight:700;color:var(--accent)}
+
+
+    /* Topbar */
+    #topbar{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--card);border-radius:10px;margin:10px 0}
+    #topbar span{padding:10px 14px;background:rgba(0,0,0,0.35);border-radius:10px;font-weight:600;color:#00eaff;border:1px solid rgba(255,255,255,0.15);/* box-shadow removed */cursor:pointer}
+
+    input[type=text],input[type=number]{width:100%;padding:12px;border-radius:8px;border:none;margin:8px 0;background:rgba(0,0,0,0.25);color:#fff}
+    button{padding:10px 14px;border-radius:8px;border:none;background:var(--accent);color:#022;cursor:pointer;font-weight:700}
+    .muted{color:var(--muted)}
+
+    .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:12px}
+    .plan{background:rgba(255,255,255,0.02);padding:16px;border-radius:12px;text-align:center;border:1px solid rgba(255,255,255,0.03)}
+    .plan img{width:100px;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px}
+
+    /* highlighted plan box */
+    .planBox{
+      border:3px solid transparent;
+      background:rgba(0,0,0,0.45);
+      border-radius:18px;
+      padding:16px;
+      margin:16px 0;
+      box-shadow:0 0 20px rgba(255,0,0,0.2), 0 0 25px rgba(0,100,255,0.18), 0 0 30px rgba(255,215,0,0.16);
+      /* background-image removed */
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+      transition:0.3s ease;
+    }
+    .planBox img{
+      width:100%;
+      height:140px;
+      object-fit:cover;
+      border-radius:14px;
+      margin-bottom:10px;
+      animation: shine 3s infinite linear;
+    }
+    .planBox:hover{transform:translateY(-6px);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+
+    @keyframes shine{0%{filter:brightness(1);}50%{filter:brightness(1.25);}100%{filter:brightness(1);}}
+
+    /* bottom nav fullwidth */
+    #bottomNav{position:fixed;bottom:0;left:0;right:0;width:100%;display:flex;justify-content:space-around;background:rgba(0,0,0,0.55);padding:14px 0;border-radius:0;box-shadow:0 -4px 20px rgba(0,0,0,0.6);z-index:999}
+    .navBtn{background:none;border:none;color:var(--accent);display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 10px}
+    .navBtn img{width:26px;height:26px}
+
+    section{display:none}
+    section.active{display:block}
+    .infoBox{background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;margin:10px 0}
+
+    @media(max-width:480px){.planBox img{height:110px}}
+  </style>
+</head>
+<body>
+  <header>Money Maker Guru</header>
+  <main class="container">
+    <!-- LOGIN -->
+    <section id="loginScreen" class="active">
+      <h2>Create Account</h2>
+      <input id="userName" type="text" placeholder="Enter Name" autocomplete="name" />
+      <input id="userMobile" type="number" placeholder="Enter Mobile Number" inputmode="numeric" pattern="[0-9]*" />
+      <input id="userReferral" type="text" placeholder="Referral Code (Optional)" />
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button id="createBtn">Create Account</button>
+        <button id="refBtn" style="background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.06)">Referral</button>
+      </div>
+    </section>
+
+    <!-- MAIN -->
+    <section id="mainScreen">
+      <div id="topbar">
+        <span id="username">Not logged in</span>
+        <span id="balanceBox">Balance: ₹<span id="balance">0</span></span>
+      </div>
+
+      <button id="claimBtn" style="margin:12px 0">Claim ₹15 Free</button>
+
+      <h3>Pricing Plans</h3>
+      <div class="plans" id="plansList"></div>
+    </section>
+
+    <!-- ADD FUNDS -->
+    <section id="addFundsScreen">
+      <h2>Add Funds</h2>
+      <p class="muted">Minimum Amount: ₹50</p>
+      <img id="qrImg" src="https://via.placeholder.com/200" alt="QR" style="display:block;margin:12px 0;border-radius:8px" />
+      <input id="amountBox" type="number" placeholder="Amount" />
+      <input id="utrBox" type="text" placeholder="Enter UTR" />
+      <div style="margin-top:10px"><button id="checkPayBtn">Check Payment</button></div>
+    </section>
+
+    <!-- PROFILE / -->
+    <section id="withdrawScreen">
+      <button id="logoutBtn" style="margin-bottom:12px;background:#ff4444;color:#fff;width:100%;padding:10px;border-radius:8px">Logout</button>
+      <h2>Profile </h2>
+      <div class="infoBox">Name / Mobile: <b id="wdName"></b></div>
+      <div class="infoBox">User ID: <b id="wdUID"></b></div>
+      <div class="infoBox">Balance: ₹<b id="wdBalance">0</b></div>
+      <div style="display:flex;gap:8px">
+        <button id="openWithdrawFormBtn">Withdraw</button>
+        <button id="backPlansBtn" style="background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.06)">Back</button>
+      </div>
+    </section>
+
+    <section id="withdrawForm">
+      <h2>Withdraw Funds</h2>
+      <p class="muted">Minimum Withdrawal: ₹75</p>
+      <input id="withdrawAmt" type="number" placeholder="Enter Amount" />
+      <input id="withdrawUPI" type="text" placeholder="Enter UPI ID" />
+      <div style="margin-top:10px"><button id="withdrawSubmit">Withdraw</button></div>
+    </section>
+
+    <section id="referralScreen">
+      <h2>Referral System</h2>
+      <div class="infoBox">Your Referral Code: <b id="refCode"></b></div>
+      <p class="muted">Note: If any user joins using your referral code, you will earn <b>50% commission</b> of your friend's deposit.</p>
+      <div style="margin-top:10px"><button id="backFromRef">Back</button></div>
+    </section>
+
+    <div id="popupBg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:1000">
+      <div style="background:rgba(0,0,0,0.6);padding:18px;border-radius:10px;width:320px;text-align:center;">
+        <p id="popupMsg"></p>
+        <div style="display:flex;justify-content:center;margin-top:12px"><button id="popupOk">OK</button></div>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="bottomNav">
+    <button class="navBtn" id="navPlans"><img src="https://i.imgur.com/OOuQ2Vg.png" alt="home"/><span>Plans</span></button>
+    <button class="navBtn" id="navAdd"><img src="https://i.imgur.com/xI4u5y0.png" alt="money"/><span>Add</span></button>
+    <button class="navBtn" id="navProfile"><img src="https://i.imgur.com/6XQvJzX.png" alt="profile"/><span>User Profile</span></button>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  (function(){
+    let balance = 0;
+    const UID = Math.floor(Math.random()*900000)+100000;
+    let lastScreen = 'loginScreen';
+    const plans = [50,100,150,200,300];
+    const planImages = {
+      50: "https://media.istockphoto.com/id/1321081372/photo/realistic-3d-render-of-solar-panel-farm.webp?a=1&b=1&s=612x612&w=0&k=20&c=J0NUNSgdWB0aHuW6t0oAU1_XOV2ofnUCNk3Gzc9pCjA=",
+      100:"https://media.istockphoto.com/id/1321081372/photo/realistic-3d-render-of-solar-panel-farm.webp?a=1&b=1&s=612x612&w=0&k=20&c=J0NUNSgdWB0aHuW6t0oAU1_XOV2ofnUCNk3Gzc9pCjA=",
+      150: "https://media.istockphoto.com/id/1321081372/photo/realistic-3d-render-of-solar-panel-farm.webp?a=1&b=1&s=612x612&w=0&k=20&c=J0NUNSgdWB0aHuW6t0oAU1_XOV2ofnUCNk3Gzc9pCjA=",
+      200: "https://media.istockphoto.com/id/1321081372/photo/realistic-3d-render-of-solar-panel-farm.webp?a=1&b=1&s=612x612&w=0&k=20&c=J0NUNSgdWB0aHuW6t0oAU1_XOV2ofnUCNk3Gzc9pCjA=",
+      300: "https://media.istockphoto.com/id/1321081372/photo/realistic-3d-render-of-solar-panel-farm.webp?a=1&b=1&s=612x612&w=0&k=20&c=J0NUNSgdWB0aHuW6t0oAU1_XOV2ofnUCNk3Gzc9pCjA=",
+    };
+
+    // Helpers
+    function switchScreen(id){
+      document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+      const el = document.getElementById(id);
+      if(el) el.classList.add('active');
+      document.getElementById('bottomNav').style.display = (id==='loginScreen' ? 'none' : 'flex');
+    }
+    function showPopup(msg){ document.getElementById('popupMsg').innerText = msg; document.getElementById('popupBg').style.display = 'flex'; }
+    function closePopup(){ document.getElementById('popupBg').style.display = 'none'; }
+    function updateBalanceDisplay(){ document.getElementById('balance').innerText = balance; document.getElementById('wdBalance').innerText = balance; }
+
+    // define openWithdraw early so listeners can call it safely
+    function openWithdraw(){
+      document.getElementById('wdUID').innerText = UID;
+      document.getElementById('wdBalance').innerText = balance;
+      const uname = document.getElementById('username').innerText || 'Not logged in';
+      document.getElementById('wdName').innerText = uname;
+      switchScreen('withdrawScreen');
+    }
+
+    // Account creation
+    document.getElementById('createBtn').addEventListener('click', ()=>{
+      const name = document.getElementById('userName').value.trim();
+      const mobile = document.getElementById('userMobile').value.trim();
+      const referral = document.getElementById('userReferral').value.trim();
+      if(!name || !mobile){ alert('Please enter both Name and Mobile Number'); return; }
+      if(!/^\d{10}$/.test(mobile)){
+        showPopup('Enter valid mobile number');
+        return;
+      }
+      document.getElementById('username').innerText = `${name} (${mobile})`;
+      document.getElementById('wdName').innerText = `${name} (${mobile})`;
+      document.getElementById('wdUID').innerText = UID;
+      updateBalanceDisplay();
+      switchScreen('mainScreen');
+      setTimeout(()=>showPopup('Click Claim to get ₹15 Free'), 500);
+    });
+
+    // Claim free (only once)
+let claimUsed = localStorage.getItem("claimUsed") === "true";
+
+if (claimUsed) {
+  document.getElementById("claimBtn").disabled = true;
+  document.getElementById("claimBtn").innerText = "Already Claimed";
+}
+
+document.getElementById("claimBtn").addEventListener("click", () => {
+  if (claimUsed) {
+    showPopup("You have already claimed your ₹15 bonus.");
+    return;
+  }
+
+  balance += 15;
+  updateBalanceDisplay();
+
+  claimUsed = true;
+  localStorage.setItem("claimUsed", "true");
+
+  document.getElementById("claimBtn").disabled = true;
+  document.getElementById("claimBtn").innerText = "Already Claimed";
+
+  showPopup("₹15 added to balance!");
+});
+    // Build plans
+    function renderPlans(){
+      const container = document.getElementById('plansList'); container.innerHTML = '';
+      plans.forEach(p=>{
+        const daily = Math.round(p * 0.3);
+        const card = document.createElement('div'); card.className = 'plan planBox';
+        card.innerHTML = `\n          <img src="${planImages[p]}" alt="plan-img" class="planImg" />\n          <h4>₹${p} Plan</h4>\n          <p class="muted">Daily: ₹${daily} | Valid: 5 Days</p>\n          <div style="margin-top:8px"><button data-cost="${p}">Buy</button></div>\n        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Buy handler with insufficient message
+    document.addEventListener('click', (e)=>{
+      if(e.target && e.target.matches('.plan button')){
+        const cost = Number(e.target.getAttribute('data-cost'));
+        if(balance < cost){
+          const need = cost - balance;
+          showPopup(`Insufficient funds. Add ₹${need} more to buy this plan.`);
+          return;
+        }
+        balance -= cost; updateBalanceDisplay(); showPopup('Plan purchased successfully!');
+      }
+    });
+
+    // Add funds
+    document.getElementById('checkPayBtn').addEventListener('click', ()=>{
+      const amt = Number(document.getElementById('amountBox').value);
+      const utr = document.getElementById('utrBox').value.trim();
+      if(!amt || amt < 50){ document.getElementById('amountBox').value = 50; showPopup('Minimum amount is ₹50'); return; }
+      if(!utr){ showPopup('Wrong UTR'); return; }
+      balance += amt; updateBalanceDisplay(); showPopup('Payment Pending Verification (simulated)');
+      switchScreen('mainScreen');
+    });
+
+    // Withdraw flow
+    document.getElementById('openWithdrawFormBtn').addEventListener('click', ()=> switchScreen('withdrawForm'));
+    document.getElementById('withdrawSubmit').addEventListener('click', ()=>{
+      const amt = Number(document.getElementById('withdrawAmt').value);
+      const upi = document.getElementById('withdrawUPI').value.trim();
+      if(!amt || amt < 75){ showPopup('Minimum withdrawal is ₹75'); return; }
+      if(amt > balance){ showPopup('Insufficient Balance'); return; }
+      if(!upi){ showPopup('Enter valid UPI ID'); return; }
+      balance -= amt; updateBalanceDisplay(); showPopup('Withdrawal Request Submitted');
+      switchScreen('mainScreen');
+    });
+
+    // Referral open/back remembering last screen
+    document.getElementById('refBtn').addEventListener('click', ()=>{
+      const active = document.querySelector('main section.active');
+      lastScreen = active ? active.id : 'mainScreen';
+      document.getElementById('refCode').innerText = UID;
+      switchScreen('referralScreen');
+    });
+    document.getElementById('backFromRef').addEventListener('click', ()=> switchScreen(lastScreen));
+
+    // Navigation buttons
+    document.getElementById('navPlans').addEventListener('click', ()=> switchScreen('mainScreen'));
+    document.getElementById('navAdd').addEventListener('click', ()=> switchScreen('addFundsScreen'));
+    document.getElementById('navProfile').addEventListener('click', ()=> openWithdraw());
+    document.getElementById('backPlansBtn').addEventListener('click', ()=> switchScreen('mainScreen'));
+
+    // Attach click handlers for topbar items to open withdraw (no inline onclicks)
+    document.getElementById('username').addEventListener('click', openWithdraw);
+    document.getElementById('balanceBox').addEventListener('click', openWithdraw);
+
+    // logout handler
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      // reset everything to initial state
+      balance = 0; updateBalanceDisplay();
+      document.getElementById('username').innerText = 'Not logged in';
+      switchScreen('loginScreen');
+    });
+
+    // popup ok
+    document.getElementById('popupOk').addEventListener('click', closePopup);
+
+    // initialize
+    renderPlans();
+    // set QR using provided UPI id
+    const upi = encodeURIComponent('pranksainiapks@fam');
+    document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=${upi}`;
+    // default
+    switchScreen('loginScreen'); document.getElementById('bottomNav').style.display='none';
+  })();
+});
+</script>
+</body>
+</html>
+
